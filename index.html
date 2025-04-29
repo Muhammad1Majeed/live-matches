@@ -1,49 +1,72 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>بث قناة SSC 1</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
-  <style>
-    body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    video { width: 100%; max-width: 800px; height: auto; border: 2px solid #00b4d8; border-radius: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Video Player HTMLAPP24</title>
+    <meta name="robots" content="noindex">
+    <link href="https://cdn.jsdelivr.net/npm/clappr@latest/src/components/core/public/fonts.min.css" rel="stylesheet">
+    <script src="https://content.jwplatform.com/libraries/IDzF9Zmk.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        *, ::before, ::after { box-sizing: border-box }
+        html, body { height: 100%; margin: 0; padding: 0; background: #fff }
+        .container-fluid { display: flex; flex-direction: column; height: 100%; padding: 0; margin: 0 }
+        .buttons-section { padding: 1px; margin-bottom: 0; display: flex; flex-wrap: wrap; justify-content: center; overflow-x: auto; white-space: nowrap }
+        .buttons-section .btn { flex: 1 0 auto; padding: 10px; margin: 1px; white-space: normal; text-align: center; cursor: pointer; transition: background-color 0.3s, color .3s; font-size: .8rem; line-height: 1.7; border-radius: 5px; background-color: #221f1f; color: #fff; border: 1px solid #fff; font-weight: 600 }
+        .buttons-section .btn.selected { background-color: #a90202; color: #fff; border: none; font-size: .9rem; font-weight: 700 }
+        .buttons-section .btn:hover { background-color: #a90202 }
+        .player-container { position: relative; flex: 1; background-color: #000 }
+        #player { width: 100%; height: 100% }
+        .overlay-text { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); color: #fff; background-color: rgba(0, 0, 0, 0.6); padding: 10px 20px; border-radius: 5px; font-size: 1.5rem; z-index: 2; text-align: center; white-space: nowrap; text-decoration: none }
+        @media (max-width: 576px) { .overlay-text { font-size: 1rem; padding: 8px 16px } }
+    </style>
 </head>
 <body>
-  <video id="video" controls autoplay></video>
-  <script>
-    async function initPlayer() {
-      const manifestUrl = "https://ssc-1-enc.edgenextcdn.net/out/v1/c696e4819b55414388a1a487e8a45ca1/index.mpd";
-      const keyId = "d84c325f36814f39bbe59080272b10c3";
-      const key = "550727de4c96ef1ecff874905493580f";
+    <div class="container-fluid">
+        <div class="buttons-section">
+            <button class="btn video-btn selected" data-video-type="direct_with_key" data-video-id="SSC 1" data-url="https://ssc-1-enc.edgenextcdn.net/out/v1/c696e4819b55414388a1a487e8a45ca1/index.mpd" data-video-key="d84c325f36814f39bbe59080272b10c3:550727de4c96ef1ecff874905493580f">SSC 1</button>
+        </div>
+        <div class="player-container">
+            <div id="videoPlayer">
+                <div id="jwplayer-container"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            function initializePlayer(videoUrl, videoKey) {
+                jwplayer("jwplayer-container").setup({
+                    file: videoUrl,
+                    width: "100%",
+                    height: "100%",
+                    aspectratio: "16:9",
+                    controls: true,
+                    autostart: true,
+                    drm: {
+                        clearkey: {
+                            keyId: videoKey.split(":")[0],
+                            key: videoKey.split(":")[1]
+                        }
+                    },
+                    stretching: "exactfit",
+                    fullscreen: true
+                });
+            }
 
-      const video = document.getElementById('video');
-      const player = new shaka.Player(video);
+            const videoUrl = $(".video-btn.selected").data("url");
+            const videoKey = $(".video-btn.selected").data("video-key");
+            initializePlayer(videoUrl, videoKey);
 
-      player.configure({
-        drm: {
-          clearKeys: {
-            [keyId]: key
-          }
-        }
-      });
-
-      try {
-        await player.load(manifestUrl);
-        console.log("تم تحميل البث بنجاح");
-      } catch (error) {
-        console.error("خطأ في تحميل البث:", error);
-        alert("تعذر تشغيل البث");
-      }
-    }
-
-    shaka.polyfill.installAll();
-    if (shaka.Player.isBrowserSupported()) {
-      initPlayer();
-    } else {
-      alert("المتصفح لا يدعم Shaka Player");
-    }
-  </script>
+            $(".video-btn").on("click", function() {
+                $(".video-btn").removeClass("selected");
+                $(this).addClass("selected");
+                const videoUrl = $(this).data("url");
+                const videoKey = $(this).data("video-key");
+                initializePlayer(videoUrl, videoKey);
+            });
+        });
+    </script>
 </body>
 </html>
