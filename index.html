@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>قناة MASR 2 - بث مباشر</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         html, body {
             margin: 0;
@@ -13,7 +11,7 @@
             height: 100%;
             background-color: #000;
         }
-        #videoPlayer {
+        #video {
             width: 100%;
             height: 100vh;
             background-color: #000;
@@ -21,20 +19,29 @@
     </style>
 </head>
 <body>
-    <div id="videoPlayer"></div>
+    <video id="video" controls autoplay></video>
 
-    <!-- JW Player CDN -->
-    <script src="https://content.jwplatform.com/libraries/IDzF9Zmk.js"></script>
+    <!-- مكتبة HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
-        jwplayer("videoPlayer").setup({
-            file: "https://shls-masr2-enc.edgenextcdn.net/out/v1/f683685242b549f48ea8a5171e3e993a/index.m3u8",
-            width: "100%",
-            height: "100%",
-            aspectratio: "16:9",
-            autostart: true,
-            controls: true,
-            stretching: "uniform"
-        });
+        const video = document.getElementById('video');
+        const videoSrc = "https://shls-masr2-enc.edgenextcdn.net/out/v1/f683685242b549f48ea8a5171e3e993a/index.m3u8";
+
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play();
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', () => {
+                video.play();
+            });
+        } else {
+            alert("المتصفح لا يدعم تشغيل البث المباشر.");
+        }
     </script>
 </body>
 </html>
